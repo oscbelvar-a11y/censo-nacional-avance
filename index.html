@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-wwmcaQnOIiQrSfu/OWWppoYaLchnLdYOu9MPWqC5Pko='; style-src 'sha256-HpxhopDB9shNOd75yyZStUwS+7+ZBLrCGH2HHb4xD2w='; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Censo Nacional Coolers · Avance</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #6b6a65; /* 5:1 on the surface: small text needs 4.5:1 */
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.10);
+    --series-1: #2a78d6;
+    --track: #e1e0d9;
+    --good: #0ca30c;
+    --warning: #fab219;
+    --serious: #ec835a;
+    --critical: #d03b3b;
+    --neutral: #898781;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --series-1: #3987e5;
+      --track: #2c2c2a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.10);
+    --series-1: #3987e5;
+    --track: #2c2c2a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 20px 16px 40px; }
+  header { display: flex; gap: 12px 24px; align-items: flex-start; justify-content: space-between; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0; }
+  .sub { color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+  .ghost {
+    font: inherit; background: var(--surface); color: var(--ink-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 12px; cursor: pointer;
+  }
+  .status-line { color: var(--muted); font-size: 12px; margin: 10px 0 16px; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+  .card h2 { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+  .card .hint { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+  .hero { grid-column: span 6; }
+  .hero .label { color: var(--ink-2); }
+  .hero .value { font-size: 56px; font-weight: 600; line-height: 1.05; margin: 4px 0 10px; }
+  .hero-note { color: var(--ink-2); font-size: 13px; }
+  .tiles { grid-column: span 6; display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile .label { color: var(--ink-2); font-size: 13px; }
+  .tile .value { font-size: 26px; font-weight: 600; margin-top: 2px; }
+  .tile .note { color: var(--muted); font-size: 12px; }
+  .span-8 { grid-column: span 8; }
+  .span-4 { grid-column: span 4; }
+  .span-5 { grid-column: span 5; }
+  .span-7 { grid-column: span 7; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  svg text { fill: var(--muted); font-size: 11px; }
+  svg .val { fill: var(--ink-2); font-size: 12px; font-variant-numeric: tabular-nums; }
+  svg .cat { fill: var(--ink-2); font-size: 12px; }
+  .bar { fill: var(--series-1); }
+  .hit { fill: transparent; }
+  .band:hover .bar { opacity: 0.85; }
+  .empty { color: var(--muted); padding: 24px 0; text-align: center; }
+  .status-list { display: grid; gap: 14px; }
+  .status-row .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--ink-2); font-size: 13px; }
+  .status-row .name { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+  .status-row .name i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .status-row b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .status-row .share { color: var(--muted); font-size: 12px; }
+  .status-row .track { height: 8px; margin-top: 5px; border-radius: 4px; background: var(--track); }
+  .status-row .track i { display: block; height: 100%; background: var(--series-1); border-radius: 4px; }
+  .status-row:hover .track i { opacity: 0.85; }
+  .status-row .detail { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .status-row .top > span:last-child { white-space: nowrap; }
+  details { margin-top: 10px; color: var(--ink-2); font-size: 13px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+  .scroll { overflow-x: auto; max-height: 280px; overflow-y: auto; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 600; color: var(--ink-2); border-bottom: 1px solid var(--axis); padding: 6px 8px; }
+  td { border-bottom: 1px solid var(--grid); padding: 6px 8px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tooltip {
+    position: fixed; pointer-events: none; z-index: 10; background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); opacity: 0; transition: opacity 0.08s;
+  }
+  .tooltip b { font-weight: 600; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 20px; }
+  @media (max-width: 860px) {
+    .hero, .tiles, .span-8, .span-4, .span-5, .span-7 { grid-column: span 12; }
+  }
+  @media (max-width: 480px) {
+    .hero .value { font-size: 44px; }
+    .tile .value { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Censo Anual Nacional Coolers WA</h1>
+      <div class="sub">Avance general, por región y por UEN · solo totales</div>
+    </div>
+    <button type="button" class="ghost" id="tema" title="Cambiar tema" aria-label="Cambiar tema">◐</button>
+  </header>
+  <div class="status-line" id="estado" aria-live="polite">Cargando…</div>
+
+  <div class="grid">
+    <section class="card hero">
+      <div class="label">Series contadas</div>
+      <div class="value" id="k-series">–</div>
+      <div class="hero-note" id="k-dias-note">Equipos distintos con foto de su placa</div>
+      <div class="hero-note" id="k-semana"></div>
+    </section>
+    <div class="tiles">
+      <section class="card tile"><div class="label">En la base de equipos</div><div class="value" id="k-base">–</div><div class="note" id="k-base-note"></div></section>
+      <section class="card tile"><div class="label">Fuera de base (extra)</div><div class="value" id="k-extra">–</div><div class="note" id="k-extra-note"></div></section>
+      <section class="card tile"><div class="label">Clientes con lecturas</div><div class="value" id="k-clientes">–</div><div class="note">puntos de venta distintos</div></section>
+      <section class="card tile"><div class="label">Fotos y páginas leídas</div><div class="value" id="k-fotos">–</div><div class="note">una lectura por foto o página de PDF</div></section>
+    </div>
+
+    <section class="card span-8">
+      <h2>Series nuevas por día</h2>
+      <p class="hint">Cada serie cuenta el día en que se recibió por primera vez (hora de Ciudad de México)</p>
+      <div id="c-dias"></div>
+      <details>
+        <summary>Ver como tabla</summary>
+        <div class="scroll" id="t-dias"></div>
+      </details>
+    </section>
+    <section class="card span-4">
+      <h2>Conciliación contra la base</h2>
+      <p class="hint">Series contadas, según su lectura más reciente</p>
+      <div id="c-conciliacion"></div>
+    </section>
+
+    <section class="card span-5">
+      <h2>Por región</h2>
+      <p class="hint">Series contadas según la región del cliente en la base</p>
+      <div id="c-regiones"></div>
+    </section>
+    <section class="card span-7">
+      <h2>UEN con más series</h2>
+      <p class="hint" id="h-uen">Las 10 UEN con más series contadas</p>
+      <div id="c-uen"></div>
+    </section>
+  </div>
+
+  <footer>
+    Fuente: fotos de placas recibidas por WhatsApp, cruzadas contra la base de equipos vigente (4 regiones).
+    Página pública con los totales del censo. No incluye clientes, números de serie, fotos ni datos de personas.
+    Se actualiza sola cuando hay lecturas nuevas.
+  </footer>
+</div>
+<div class="tooltip" id="tip" role="tooltip"></div>
+
+<script>
+"use strict";
+const TZ = "America/Mexico_City";
+const NUM = new Intl.NumberFormat("es-MX");
+const PCT = new Intl.NumberFormat("es-MX", { maximumFractionDigits: 1 });
+const DAY = new Intl.DateTimeFormat("es-MX", { timeZone: "UTC", day: "numeric", month: "short" });
+const STAMP = new Intl.DateTimeFormat("es-MX", { timeZone: TZ, day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+const STATUS = {
+  ENCONTRADO: ["Encontrado en su cliente", "good", "✓"],
+  EN_BASE: ["En la base", "good", "✓"],
+  ENCONTRADO_EN_OTRO_CLIENTE: ["En otro cliente", "warning", "!"],
+  NO_REGISTRADO: ["Fuera de base (extra)", "serious", "?"],
+  SIN_BASE: ["Sin base para conciliar", "neutral", "–"],
+};
+const IN_BASE = ["ENCONTRADO", "EN_BASE", "ENCONTRADO_EN_OTRO_CLIENTE"];
+const SVGNS = "http://www.w3.org/2000/svg";
+const tip = document.getElementById("tip");
+
+function el(tag, attrs = {}, ...children) {
+  const node = tag.startsWith("svg:") ? document.createElementNS(SVGNS, tag.slice(4)) : document.createElement(tag);
+  for (const [key, value] of Object.entries(attrs)) {
+    if (value === null || value === undefined || value === false) continue;
+    if (key === "text") node.textContent = value;
+    else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+    else node.setAttribute(key, value);
+  }
+  for (const child of children) if (child) node.append(child);
+  return node;
+}
+
+function showTip(event, lines) {
+  tip.replaceChildren(...lines.map((line, i) => el(i === 0 ? "b" : "div", { text: line })));
+  const x = Math.min(event.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+  const y = Math.max(event.clientY - tip.offsetHeight - 10, 8);
+  tip.style.left = x + "px";
+  tip.style.top = y + "px";
+  tip.style.opacity = "1";
+}
+function hideTip() { tip.style.opacity = "0"; }
+
+/** Top of a 4-gridline axis: the smallest 1/2/2.5/5 × 10ⁿ step that fits the value. */
+function niceMax(value) {
+  if (value <= 4) return 4;
+  const step = Math.pow(10, Math.floor(Math.log10(value / 4)));
+  for (const m of [1, 2, 2.5, 5, 10]) if (m * step * 4 >= value) return m * step * 4;
+  return value;
+}
+function compact(n) { return n >= 1000 ? NUM.format(Math.round(n / 100) / 10) + " mil" : NUM.format(n); }
+function dayLabel(iso) { return DAY.format(new Date(iso + "T12:00:00Z")); }
+
+const ISO_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" });
+
+/** Every calendar day from the first one to today (Mexico City), so a quiet day shows as zero
+ *  instead of disappearing. */
+function everyDay(rows) {
+  if (!rows.length) return [];
+  const byDay = new Map(rows.map(r => [r.dia, r]));
+  const last = rows[rows.length - 1].dia, today = ISO_DAY.format(new Date());
+  const out = [];
+  for (let d = new Date(rows[0].dia + "T00:00:00Z"), end = new Date((today > last ? today : last) + "T00:00:00Z");
+       d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    const iso = d.toISOString().slice(0, 10);
+    out.push(byDay.get(iso) || { dia: iso, series_nuevas: 0, fotos: 0 });
+  }
+  return out;
+}
+
+/** Columns grow from one baseline; 4px rounded data-end, square at the baseline. */
+function columnPath(x, y, w, h, r = 4) {
+  r = Math.min(r, w / 2, h);
+  return `M${x},${y + h}V${y + r}a${r},${r} 0 0 1 ${r},${-r}H${x + w - r}a${r},${r} 0 0 1 ${r},${r}V${y + h}Z`;
+}
+
+function columnChart(container, rows) {
+  container.replaceChildren();
+  if (!rows.length) { container.append(el("div", { class: "empty", text: "Aún no hay lecturas" })); return; }
+  // Drawn at the card's real width, so the axis text keeps its size on a phone.
+  const W = Math.max(280, Math.round(container.clientWidth || 680)), H = 240, left = 36, right = 8, top = 18, bottom = 26;
+  const max = niceMax(Math.max(...rows.map(r => r.series_nuevas)));
+  const band = (W - left - right) / rows.length;
+  const barW = Math.max(2, Math.min(24, band * 0.7));
+  const svg = el("svg:svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Series nuevas por día" });
+  for (let i = 0; i <= 4; i++) {
+    const v = (max / 4) * i, y = top + (H - top - bottom) * (1 - v / max);
+    svg.append(el("svg:line", { x1: left, x2: W - right, y1: y, y2: y, stroke: i === 0 ? "var(--axis)" : "var(--grid)", "stroke-width": 1 }));
+    svg.append(el("svg:text", { x: left - 6, y: y + 4, "text-anchor": "end", text: compact(v) }));
+  }
+  const every = Math.ceil(rows.length / Math.max(3, Math.floor((W - left) / 80)));
+  let peak = rows[0];
+  rows.forEach((row, i) => {
+    if (row.series_nuevas > peak.series_nuevas) peak = row;
+    const x = left + band * i + (band - barW) / 2;
+    const h = (H - top - bottom) * (row.series_nuevas / max);
+    const label = dayLabel(row.dia);
+    const g = el("svg:g", { class: "band" });
+    g.append(el("svg:rect", { class: "hit", x: left + band * i, y: top, width: band, height: H - top - bottom,
+      onmousemove: e => showTip(e, [label, `${NUM.format(row.series_nuevas)} series nuevas`, `${NUM.format(row.fotos)} lecturas`]),
+      onmouseleave: hideTip }));
+    if (h > 0) g.append(el("svg:path", { class: "bar", d: columnPath(x, H - bottom - h, barW, h), "pointer-events": "none" }));
+    svg.append(g);
+    if (i % every === 0 || i === rows.length - 1) {
+      svg.append(el("svg:text", { x: x + barW / 2, y: H - 8, "text-anchor": "middle", text: label }));
+    }
+  });
+  // Direct label on the busiest day only.
+  const pi = rows.indexOf(peak);
+  const px = left + band * pi + band / 2;
+  const py = H - bottom - (H - top - bottom) * (peak.series_nuevas / max);
+  svg.append(el("svg:text", { class: "val", x: px, y: py - 6, "text-anchor": "middle", text: NUM.format(peak.series_nuevas) }));
+  container.append(svg);
+}
+
+/** HTML rows rather than SVG: in a narrow card the text keeps its size. */
+function statusList(container, rows) {
+  container.replaceChildren();
+  if (!rows.length) { container.append(el("div", { class: "empty", text: "Aún no hay series" })); return; }
+  const max = Math.max(...rows.map(r => r.series));
+  const total = rows.reduce((s, r) => s + r.series, 0);
+  const list = el("div", { class: "status-list", role: "list", "aria-label": "Conciliación contra la base" });
+  for (const row of rows) {
+    const [name, tone, icon] = STATUS[row.estado] || [row.estado, "neutral", "–"];
+    const share = Math.round(row.series / total * 100);
+    const fill = el("i");
+    fill.style.width = Math.max(0.5, row.series / max * 100) + "%";
+    // Styles set through the DOM, never a style attribute: the CSP allows no inline styles.
+    const dot = el("i", { "aria-hidden": "true" });
+    dot.style.background = `var(--${tone})`;
+    list.append(el("div", { class: "status-row", role: "listitem",
+        onmousemove: e => showTip(e, [name, `${NUM.format(row.series)} series`, `${share} % del total`]),
+        onmouseleave: hideTip },
+      el("div", { class: "top" },
+        el("span", { class: "name" }, dot, el("span", { text: `${icon} ${name}` })),
+        el("span", {}, el("b", { text: NUM.format(row.series) }), el("span", { class: "share", text: ` · ${share} %` }))),
+      el("div", { class: "track" }, fill)));
+  }
+  container.append(list);
+}
+
+/** Region or UEN rows, one hue: the bar length is the number of series. The share is of every
+ *  counted series (`total`), not of the rows shown: a top 10 does not add up to 100 %. */
+function barList(container, rows, { label, where, empty, total }) {
+  container.replaceChildren();
+  if (!rows.length) { container.append(el("div", { class: "empty", text: empty })); return; }
+  const max = Math.max(...rows.map(r => r.series));
+  const list = el("div", { class: "status-list", role: "list" });
+  for (const row of rows) {
+    const name = label(row);
+    const share = Math.round(row.series / total * 100);
+    const extra = row.fuera_de_base ? `${NUM.format(row.fuera_de_base)} fuera de base (extra)` : "";
+    // The region and the extras go under the bar, so a long name never squeezes the number.
+    const detail = [where ? where(row) : "", extra].filter(Boolean).join(" · ");
+    const fill = el("i");
+    fill.style.width = Math.max(0.5, row.series / max * 100) + "%";
+    list.append(el("div", { class: "status-row", role: "listitem",
+        onmousemove: e => showTip(e, [name, `${NUM.format(row.series)} series`, ...(detail ? [detail] : [])]),
+        onmouseleave: hideTip },
+      el("div", { class: "top" },
+        el("span", { class: "name", text: name }),
+        el("span", {}, el("b", { text: NUM.format(row.series) }), el("span", { class: "share", text: ` · ${share} %` }))),
+      el("div", { class: "track" }, fill),
+      detail ? el("div", { class: "detail", text: detail }) : null));
+  }
+  container.append(list);
+}
+
+function dayTable(container, rows) {
+  container.replaceChildren();
+  if (!rows.length) return;
+  const head = el("tr", {}, el("th", { text: "Día" }), el("th", { class: "num", text: "Series nuevas" }),
+    el("th", { class: "num", text: "Lecturas" }));
+  const body = [...rows].reverse().map(r => el("tr", {}, el("td", { text: dayLabel(r.dia) }),
+    el("td", { class: "num", text: NUM.format(r.series_nuevas) }), el("td", { class: "num", text: NUM.format(r.fotos) })));
+  container.append(el("table", {}, el("thead", {}, head), el("tbody", {}, ...body)));
+}
+
+function render(data) {
+  const series = data.series_contadas;
+  document.getElementById("k-series").textContent = NUM.format(series);
+  const share = n => series ? `${PCT.format(n / series * 100)} % de las series contadas` : "sin series aún";
+  const inBase = data.conciliacion.filter(c => IN_BASE.includes(c.estado)).reduce((s, c) => s + c.series, 0);
+  const extra = data.conciliacion.filter(c => c.estado === "NO_REGISTRADO").reduce((s, c) => s + c.series, 0);
+  document.getElementById("k-base").textContent = NUM.format(inBase);
+  document.getElementById("k-base-note").textContent = share(inBase);
+  document.getElementById("k-extra").textContent = NUM.format(extra);
+  document.getElementById("k-extra-note").textContent = series ? share(extra) : "equipos que no están en la base";
+  document.getElementById("k-fotos").textContent = NUM.format(data.fotos);
+  document.getElementById("k-clientes").textContent = NUM.format(data.clientes);
+  const days = data.por_dia.length;
+  document.getElementById("k-dias-note").textContent = days
+    ? `Equipos distintos con foto de su placa · ${NUM.format(days)} ${days === 1 ? "día" : "días"} con lecturas,` +
+      ` del ${dayLabel(data.por_dia[0].dia)} al ${dayLabel(data.por_dia[days - 1].dia)}`
+    : "Equipos distintos con foto de su placa · aún sin lecturas";
+  // No goal: progress is compared with the 7 days before, same length of time.
+  const calendar = everyDay(data.por_dia);
+  const newSeries = rows => rows.reduce((s, r) => s + r.series_nuevas, 0);
+  const week = calendar.slice(-7), before = calendar.slice(-14, -7);
+  document.getElementById("k-semana").textContent = calendar.length < 7 ? ""
+    : `Últimos 7 días: ${NUM.format(newSeries(week))} series nuevas` +
+      (before.length === 7 ? ` · 7 días anteriores: ${NUM.format(newSeries(before))}` : "");
+  columnChart(document.getElementById("c-dias"), calendar);
+  dayTable(document.getElementById("t-dias"), data.por_dia);
+  statusList(document.getElementById("c-conciliacion"), data.conciliacion);
+  barList(document.getElementById("c-regiones"), data.por_region, { total: series,
+    label: r => r.region || "Sin región (sin cliente en la base)", empty: "Aún no hay series" });
+  barList(document.getElementById("c-uen"), data.por_uen, { total: series,
+    label: r => r.uen, where: r => r.region, empty: "Aún no hay series con UEN" });
+  document.getElementById("h-uen").textContent = data.uen_con_series > data.por_uen.length
+    ? `Las ${data.por_uen.length} con más series de ${NUM.format(data.uen_con_series)} UEN con lecturas`
+    : "UEN con series contadas, de mayor a menor";
+  const parts = [];
+  if (data.ultima_lectura) parts.push(`Última lectura: ${STAMP.format(new Date(data.ultima_lectura))}`);
+  if (data.publicado_en) parts.push(`datos actualizados ${STAMP.format(new Date(data.publicado_en))}`);
+  document.getElementById("estado").textContent = parts.join(" · ") || "Aún no hay lecturas";
+}
+
+let latest = null;
+async function refresh() {
+  try {
+    const response = await fetch("datos.json?t=" + Date.now(), { cache: "no-store" });
+    if (!response.ok) throw new Error(response.status);
+    latest = await response.json();
+    render(latest);
+  } catch (error) {
+    document.getElementById("estado").textContent = `No pude cargar los datos (${error.message}). Reintento en 5 min.`;
+  }
+}
+
+document.getElementById("tema").addEventListener("click", () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem("tema", root.dataset.theme); } catch (_) {}
+});
+try { const saved = localStorage.getItem("tema"); if (saved) document.documentElement.dataset.theme = saved; } catch (_) {}
+
+let resizing;
+window.addEventListener("resize", () => {
+  clearTimeout(resizing);
+  resizing = setTimeout(() => { if (latest) columnChart(document.getElementById("c-dias"), everyDay(latest.por_dia)); }, 150);
+});
+
+refresh();
+setInterval(refresh, 5 * 60 * 1000);
+</script>
+</body>
+</html>
