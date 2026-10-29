@@ -1,12 +1,144 @@
 {
- "series_contadas": 0,
- "fotos": 0,
- "clientes": 0,
- "ultima_lectura": null,
- "conciliacion": [],
- "por_dia": [],
- "por_region": [],
- "por_uen": [],
- "uen_con_series": 0,
- "publicado_en": "2026-10-26T03:23:49.748Z"
+ "series_contadas": 33,
+ "fotos": 38,
+ "clientes": 30,
+ "ultima_lectura": "2026-10-29T02:36:38.000Z",
+ "conciliacion": [
+  {
+   "estado": "ENCONTRADO",
+   "series": 19
+  },
+  {
+   "estado": "NO_REGISTRADO",
+   "series": 7
+  },
+  {
+   "estado": "EN_BASE",
+   "series": 6
+  },
+  {
+   "estado": "ENCONTRADO_EN_OTRO_CLIENTE",
+   "series": 1
+  }
+ ],
+ "por_dia": [
+  {
+   "dia": "2026-10-09",
+   "series_nuevas": 1,
+   "fotos": 1
+  },
+  {
+   "dia": "2026-10-12",
+   "series_nuevas": 2,
+   "fotos": 2
+  },
+  {
+   "dia": "2026-10-13",
+   "series_nuevas": 2,
+   "fotos": 2
+  },
+  {
+   "dia": "2026-10-15",
+   "series_nuevas": 9,
+   "fotos": 9
+  },
+  {
+   "dia": "2026-10-16",
+   "series_nuevas": 5,
+   "fotos": 5
+  },
+  {
+   "dia": "2026-10-17",
+   "series_nuevas": 1,
+   "fotos": 1
+  },
+  {
+   "dia": "2026-10-21",
+   "series_nuevas": 6,
+   "fotos": 10
+  },
+  {
+   "dia": "2026-10-22",
+   "series_nuevas": 3,
+   "fotos": 4
+  },
+  {
+   "dia": "2026-10-26",
+   "series_nuevas": 2,
+   "fotos": 2
+  },
+  {
+   "dia": "2026-10-28",
+   "series_nuevas": 2,
+   "fotos": 2
+  }
+ ],
+ "por_region": [
+  {
+   "region": "Central-Bajío",
+   "series": 27,
+   "fuera_de_base": 3
+  },
+  {
+   "region": "Norte",
+   "series": 2,
+   "fuera_de_base": 2
+  },
+  {
+   "region": "Occidente",
+   "series": 2,
+   "fuera_de_base": 1
+  },
+  {
+   "region": null,
+   "series": 2,
+   "fuera_de_base": 1
+  }
+ ],
+ "por_uen": [
+  {
+   "uen": "CMM Centro",
+   "region": "Central-Bajío",
+   "series": 15,
+   "fuera_de_base": 1
+  },
+  {
+   "uen": "CMM Altiplano",
+   "region": "Central-Bajío",
+   "series": 8,
+   "fuera_de_base": 0
+  },
+  {
+   "uen": "CMM Chihuahua",
+   "region": "Norte",
+   "series": 2,
+   "fuera_de_base": 2
+  },
+  {
+   "uen": "CMM Edo de México",
+   "region": "Central-Bajío",
+   "series": 2,
+   "fuera_de_base": 2
+  },
+  {
+   "uen": "CMM Occidente",
+   "region": "Occidente",
+   "series": 2,
+   "fuera_de_base": 1
+  },
+  {
+   "uen": "CMM Hidalgo",
+   "region": "Central-Bajío",
+   "series": 1,
+   "fuera_de_base": 0
+  },
+  {
+   "uen": "CMM Metropolitana",
+   "region": "Central-Bajío",
+   "series": 1,
+   "fuera_de_base": 0
+  }
+ ],
+ "uen_con_series": 7,
+ "publicado_en": "2026-10-29T02:41:15.975Z"
 }
