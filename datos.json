@@ -3,24 +3,6 @@
  "fotos": 76,
  "clientes": 53,
  "ultima_lectura": "2026-10-29T02:43:15.000Z",
- "conciliacion": [
-  {
-   "estado": "ENCONTRADO",
-   "series": 35
-  },
-  {
-   "estado": "NO_REGISTRADO",
-   "series": 17
-  },
-  {
-   "estado": "EN_BASE",
-   "series": 9
-  },
-  {
-   "estado": "ENCONTRADO_EN_OTRO_CLIENTE",
-   "series": 4
-  }
- ],
  "por_dia": [
   {
    "dia": "2026-10-09",
@@ -78,78 +60,5 @@
    "fotos": 4
   }
  ],
- "por_region": [
-  {
-   "region": "Central-Bajío",
-   "series": 43,
-   "fuera_de_base": 3
-  },
-  {
-   "region": "Norte",
-   "series": 16,
-   "fuera_de_base": 12
-  },
-  {
-   "region": "Occidente",
-   "series": 3,
-   "fuera_de_base": 1
-  },
-  {
-   "region": null,
-   "series": 3,
-   "fuera_de_base": 1
-  }
- ],
- "por_uen": [
-  {
-   "uen": "CMM Centro",
-   "region": "Central-Bajío",
-   "series": 31,
-   "fuera_de_base": 1
-  },
-  {
-   "uen": "CMM Chihuahua",
-   "region": "Norte",
-   "series": 16,
-   "fuera_de_base": 12
-  },
-  {
-   "uen": "CMM Altiplano",
-   "region": "Central-Bajío",
-   "series": 8,
-   "fuera_de_base": 0
-  },
-  {
-   "uen": "CMM Edo de México",
-   "region": "Central-Bajío",
-   "series": 2,
-   "fuera_de_base": 2
-  },
-  {
-   "uen": "CMM Occidente",
-   "region": "Occidente",
-   "series": 2,
-   "fuera_de_base": 1
-  },
-  {
-   "uen": "CMM Hidalgo",
-   "region": "Central-Bajío",
-   "series": 1,
-   "fuera_de_base": 0
-  },
-  {
-   "uen": "CMM Metropolitana",
-   "region": "Central-Bajío",
-   "series": 1,
-   "fuera_de_base": 0
-  },
-  {
-   "uen": "CMM Pacifico Sur",
-   "region": "Occidente",
-   "series": 1,
-   "fuera_de_base": 0
-  }
- ],
- "uen_con_series": 8,
- "publicado_en": "2026-10-29T02:56:13.934Z"
+ "publicado_en": "2026-10-29T04:56:16.229Z"
 }
