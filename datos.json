@@ -1,8 +1,8 @@
 {
- "series_contadas": 74,
- "fotos": 91,
+ "series_contadas": 75,
+ "fotos": 92,
  "clientes": 47,
- "ultima_lectura": "2026-11-10T19:38:57.000Z",
+ "ultima_lectura": "2026-11-12T17:06:30.000Z",
  "por_dia": [
   {
    "dia": "2026-10-09",
@@ -83,7 +83,12 @@
    "dia": "2026-11-10",
    "series_nuevas": 3,
    "fotos": 3
+  },
+  {
+   "dia": "2026-11-12",
+   "series_nuevas": 1,
+   "fotos": 1
   }
  ],
- "publicado_en": "2026-11-10T19:41:13.975Z"
+ "publicado_en": "2026-11-12T17:11:14.969Z"
 }
